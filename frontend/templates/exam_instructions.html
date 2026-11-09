@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructions - {{ exam.title }} | ExamVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/exam_instructions.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="page-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="side-brand">
+            <div class="brand-icon">E</div>
+            <div>
+                <h2>ExamVault</h2>
+                <small>STUDENT PORTAL</small>
+            </div>
+        </div>
+
+        <p class="menu-label">MENU</p>
+        <a href="/student" class="nav-item">▦ Dashboard</a>
+        <a href="/student/exams" class="nav-item active">▤ My Examinations</a>
+        <a href="/student#results" class="nav-item">▧ Results</a>
+
+        <div class="sidebar-bottom">
+            <div class="secure-label">♢ Secure Student Access</div>
+            <a href="/logout" class="logout">↪ Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <header class="top-header">
+            <div class="breadcrumb">
+                <a href="/student">STUDENT PORTAL</a> &nbsp;/&nbsp;
+                <a href="/student/exams">EXAMINATIONS</a> &nbsp;/&nbsp;
+                <span>INSTRUCTIONS</span>
+            </div>
+            <h1>{{ exam.title }}</h1>
+            <p class="subtitle">{{ exam.subject }} &bull; Please review all instructions carefully before starting.</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- Quick Info Grid -->
+        <section class="info-grid">
+            <div class="info-card">
+                <div class="info-icon">⏱</div>
+                <div>
+                    <span class="info-label">DURATION</span>
+                    <strong>{{ exam.duration }} Minutes</strong>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">❓</div>
+                <div>
+                    <span class="info-label">QUESTIONS</span>
+                    <strong>{{ total_questions }} MCQ(s)</strong>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">🏆</div>
+                <div>
+                    <span class="info-label">TOTAL MARKS</span>
+                    <strong>{{ total_marks }} Marks</strong>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">🎯</div>
+                <div>
+                    <span class="info-label">PASSING CRITERIA</span>
+                    <strong>40% Minimum</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instructions Container -->
+        <section class="instructions-card">
+            <div class="card-header">
+                <h2>Examination Rules &amp; Guidelines</h2>
+                <span class="badge-notice">MANDATORY READING</span>
+            </div>
+
+            {% if exam.description %}
+            <div class="custom-instructions">
+                <h3>About This Assessment</h3>
+                <p>{{ exam.description }}</p>
+            </div>
+            {% endif %}
+
+            <div class="rules-list">
+                <div class="rule-item">
+                    <span class="rule-num">1</span>
+                    <div>
+                        <strong>Timer and Countdown</strong>
+                        <p>Once you click <em>Start Examination</em>, your examination countdown begins immediately on the server. The timer continues even if you refresh or close your browser.</p>
+                    </div>
+                </div>
+
+                <div class="rule-item">
+                    <span class="rule-num">2</span>
+                    <div>
+                        <strong>Question Format &amp; Navigation</strong>
+                        <p>All questions are Multiple Choice Questions (MCQs). Select the single best option for each question. You can review and modify your answers at any time before final submission.</p>
+                    </div>
+                </div>
+
+                <div class="rule-item">
+                    <span class="rule-num">3</span>
+                    <div>
+                        <strong>Auto-Submission on Expiry</strong>
+                        <p>When the allotted time of <strong>{{ exam.duration }} minutes</strong> expires, your examination will automatically submit your selected answers.</p>
+                    </div>
+                </div>
+
+                <div class="rule-item">
+                    <span class="rule-num">4</span>
+                    <div>
+                        <strong>Single Attempt Policy</strong>
+                        <p>Only one attempt per student is permitted. Once submitted, answers cannot be edited or resubmitted.</p>
+                    </div>
+                </div>
+
+                <div class="rule-item">
+                    <span class="rule-num">5</span>
+                    <div>
+                        <strong>Browser Integrity</strong>
+                        <p>Do not open new tabs, switch windows, or use developer tools. Maintain an uninterrupted internet connection throughout your test.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="action-box">
+                {% if is_submitted %}
+                    <div class="status-banner submitted">
+                        <span class="status-icon">✓</span>
+                        <div>
+                            <strong>You have already completed this examination!</strong>
+                            <p>Submitted on {{ submission_time }}. You can review your detailed score breakdown anytime.</p>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <a href="{{ url_for('exam_result', submission_id=submission_id) }}" class="btn-primary">
+                            View Result &amp; Review &rarr;
+                        </a>
+                        <a href="/student/exams" class="btn-secondary">
+                            Back to Examinations
+                        </a>
+                    </div>
+
+                {% elif is_in_progress %}
+                    <div class="status-banner in-progress">
+                        <span class="status-icon">⏱</span>
+                        <div>
+                            <strong>Examination in Progress!</strong>
+                            <p>You have an active attempt started at {{ attempt_time }}. Remaining time: <strong>{{ remaining_minutes }} min {{ remaining_seconds_mod }} sec</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <a href="{{ url_for('take_exam', exam_id=exam.id) }}" class="btn-primary resume-pulse">
+                            Resume Examination &rarr;
+                        </a>
+                        <a href="/student/exams" class="btn-secondary">
+                            Back to Examinations
+                        </a>
+                    </div>
+
+                {% elif total_questions == 0 %}
+                    <div class="status-banner empty">
+                        <span class="status-icon">⚠️</span>
+                        <div>
+                            <strong>No Questions Available</strong>
+                            <p>This examination does not have questions configured yet. Please check back later or contact your instructor.</p>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <a href="/student/exams" class="btn-secondary">
+                            Back to Examinations
+                        </a>
+                    </div>
+
+                {% else %}
+                    <form id="startExamForm" action="{{ url_for('take_exam', exam_id=exam.id) }}" method="GET">
+                        <label class="consent-checkbox">
+                            <input type="checkbox" id="consentCheck" required>
+                            <span>I have read, understood, and agree to follow all the examination instructions and security guidelines stated above.</span>
+                        </label>
+
+                        <div class="button-group">
+                            <button type="submit" id="startBtn" class="btn-primary" disabled>
+                                Start Examination Now &rarr;
+                            </button>
+                            <a href="/student/exams" class="btn-secondary">
+                                Cancel &amp; Return
+                            </a>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+
+        </section>
+
+        <footer class="page-footer">
+            &copy; 2026 ExamVault &bull; Secure Online Examination System &bull; Version 1.0
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+    const consentCheck = document.getElementById("consentCheck");
+    const startBtn = document.getElementById("startBtn");
+
+    if (consentCheck && startBtn) {
+        consentCheck.addEventListener("change", function () {
+            startBtn.disabled = !this.checked;
+        });
+    }
+</script>
+
+</body>
+</html>

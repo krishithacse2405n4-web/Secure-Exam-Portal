@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | ExamVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+        <div class="side-brand">
+            <div class="brand-icon">E</div>
+            <div>
+                <h2>ExamVault</h2>
+                <small>STUDENT PORTAL</small>
+            </div>
+        </div>
+
+        <p class="menu-label">MENU</p>
+
+        <a href="/student" class="nav-item active">▦ Dashboard</a>
+        <a href="/student/exams" class="nav-item">▤ My Examinations</a>
+        <a href="#results" class="nav-item">▧ Results</a>
+
+        <div class="sidebar-bottom">
+            <div class="secure-label">♢ Secure Student Access</div>
+            <a href="/logout" class="logout">↪ Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-area">
+
+        <!-- Header -->
+        <header class="topbar">
+            <div>
+                <h2>Student Dashboard</h2>
+                <p>Manage your examinations and track your progress.</p>
+            </div>
+
+            <div class="profile">
+                <div class="avatar">S</div>
+                <div>
+                    <strong>Student</strong>
+                    <small>{{ email }}</small>
+                </div>
+            </div>
+        </header>
+
+        <!-- Welcome Banner -->
+        <section class="welcome-banner">
+            <div>
+                <span class="welcome-tag">YOUR LEARNING JOURNEY</span>
+                <h1>Welcome back, Student! 👋</h1>
+                <p>Stay focused, prepare well and give your best in every examination.</p>
+            </div>
+            <div class="welcome-art">✦</div>
+        </section>
+
+        <!-- Dynamic Statistics -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-icon blue">▤</div>
+                <p>Total Examinations</p>
+                <h2>{{ total_count }}</h2>
+                <small>Active examinations available</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">✓</div>
+                <p>Completed</p>
+                <h2>{{ completed_count }}</h2>
+                <small>Successfully submitted</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">◷</div>
+                <p>Pending</p>
+                <h2>{{ pending_count }}</h2>
+                <small>Awaiting completion</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">★</div>
+                <p>Average Score</p>
+                <h2>{{ average_score }}%</h2>
+                <small>Based on recent results</small>
+            </div>
+
+        </section>
+
+        <!-- Main Content -->
+        <section class="content-grid">
+
+            <!-- Available Examinations -->
+            <div class="panel" id="exams">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Available Examinations</h2>
+                        <p>Examinations published by your administrator.</p>
+                    </div>
+
+                    <a href="/student/exams" class="view-label">
+                        VIEW ALL →
+                    </a>
+                </div>
+
+                {% if exams %}
+
+                    {% for exam in exams %}
+
+                    <div class="exam-card">
+
+                        <div class="exam-icon">▤</div>
+
+                        <div class="exam-info">
+                            <h3>{{ exam.title }}</h3>
+
+                            <p>
+                                {{ exam.subject }} ·
+                                {{ exam.duration }} Minutes ·
+                                {{ exam.total_marks }} Marks
+                            </p>
+
+                            {% if exam.submission_id %}
+                                <span class="exam-status">COMPLETED</span>
+                            {% elif exam.attempt_id %}
+                                <span class="exam-status" style="background:#fff4e5;color:#b76e00;">IN PROGRESS</span>
+                            {% else %}
+                                <span class="exam-status">AVAILABLE</span>
+                            {% endif %}
+                        </div>
+
+                        {% if exam.submission_id %}
+                            <a href="{{ url_for('exam_result', submission_id=exam.submission_id) }}" class="exam-button">
+                                View Result
+                            </a>
+                        {% elif exam.attempt_id %}
+                            <a href="{{ url_for('take_exam', exam_id=exam.id) }}" class="exam-button" style="background:#b76e00;">
+                                Resume Exam
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('exam_instructions', exam_id=exam.id) }}" class="exam-button">
+                                Start Exam
+                            </a>
+                        {% endif %}
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty-exams">
+                        <div>📚</div>
+                        <h3>No Examinations Available</h3>
+                        <p>Your administrator has not added any active examinations yet.</p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <!-- Examination Summary -->
+            <div class="panel upcoming-panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Examination Summary</h2>
+                        <p>Your current examination activity.</p>
+                    </div>
+                </div>
+
+                <div class="schedule-item">
+                    <div class="date-box">
+                        <strong>{{ total_count }}</strong>
+                        <small>ALL</small>
+                    </div>
+
+                    <div>
+                        <h4>Total Examinations</h4>
+                        <p>Active examinations</p>
+                    </div>
+                </div>
+
+                <div class="schedule-item">
+                    <div class="date-box">
+                        <strong>{{ completed_count }}</strong>
+                        <small>DONE</small>
+                    </div>
+
+                    <div>
+                        <h4>Completed Exams</h4>
+                        <p>Successfully submitted</p>
+                    </div>
+                </div>
+
+                <div class="schedule-item">
+                    <div class="date-box">
+                        <strong>{{ pending_count }}</strong>
+                        <small>LEFT</small>
+                    </div>
+
+                    <div>
+                        <h4>Pending Exams</h4>
+                        <p>Not attempted yet</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Dynamic Recent Results -->
+        <section class="panel results-panel" id="results">
+
+            <div class="panel-heading">
+                <div>
+                    <h2>Recent Results</h2>
+                    <p>Your latest examination performance.</p>
+                </div>
+            </div>
+
+            {% if recent_results %}
+
+                {% for result in recent_results %}
+
+                <div class="result-row">
+
+                    <span>{{ result.title }}</span>
+
+                    <span>
+                        {{ result.score }} / {{ result.total_marks }}
+                    </span>
+
+                    <span class="{% if (result.score / result.total_marks) >= 0.4 %}result-good{% else %}result-bad{% endif %}">
+                        {{ ((result.score / result.total_marks) * 100)|round|int }}%
+                    </span>
+
+                    <a href="{{ url_for('exam_result', submission_id=result.submission_id) }}" class="view-label" style="text-decoration:none;font-size:12px;">
+                        View Result &rarr;
+                    </a>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty-exams">
+                    <h3>No Results Yet</h3>
+                    <p>Your examination results will appear here after submission.</p>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <footer>
+            © 2026 ExamVault | Secure Online Examination System
+        </footer>
+
+    </main>
+</div>
+
+</body>
+</html>

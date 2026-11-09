@@ -1,0 +1,127 @@
+---
+# ==============================================================
+# ExamVault Continuous Deployment Playbook
+# Automates Docker Installation, Environment Setup, and Deployment
+# ==============================================================
+
+- name: Deploy ExamVault Application
+  hosts: all
+  become: true
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: 1. Ensure system package cache is updated
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+      ignore_errors: yes
+
+    - name: 2. Install prerequisite packages
+      package:
+        name:
+          - curl
+          - git
+          - ca-certificates
+        state: present
+      ignore_errors: yes
+
+    - name: 3. Check if Docker is installed
+      command: docker --version
+      register: docker_installed
+      ignore_errors: yes
+      changed_when: false
+
+    - name: 4. Install Docker Engine if missing
+      block:
+        - name: Download official Docker installation script
+          get_url:
+            url: https://get.docker.com
+            dest: /tmp/get-docker.sh
+            mode: '0755'
+
+        - name: Execute Docker installation script
+          command: /tmp/get-docker.sh
+
+        - name: Remove temporary installer script
+          file:
+            path: /tmp/get-docker.sh
+            state: absent
+      when: docker_installed.rc != 0
+
+    - name: 5. Ensure Docker service is enabled and running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      ignore_errors: yes
+
+    - name: 6. Ensure application target directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: 7. Synchronize project files to server
+      copy:
+        src: "{{ playbook_dir }}/../{{ item }}"
+        dest: "{{ app_dir }}/{{ item }}"
+        mode: preserve
+      loop:
+        - Dockerfile
+        - docker-compose.yml
+        - .dockerignore
+        - backend
+        - frontend
+        - database
+
+    - name: 8. Provision secure application environment file
+      copy:
+        dest: "{{ app_dir }}/.env"
+        mode: '0600'
+        content: |
+          SECRET_KEY={{ secret_key }}
+          DB_TYPE={{ db_type }}
+          DB_HOST={{ db_host }}
+          DB_PORT={{ db_port }}
+          DB_NAME={{ db_name }}
+          DB_USER={{ db_user }}
+          DB_PASSWORD={{ db_password }}
+          MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
+          PORT={{ app_port }}
+
+    - name: 9. Build and start containers with Docker Compose
+      command: docker compose up -d --build --remove-orphans
+      args:
+        chdir: "{{ app_dir }}"
+      register: compose_up
+      changed_when: "'Started' in compose_up.stdout or 'Recreated' in compose_up.stdout"
+
+    - name: 10. Wait for ExamVault service to become healthy
+      uri:
+        url: "http://127.0.0.1:{{ app_port }}/health"
+        status_code: 200
+        return_content: yes
+      register: health_check
+      retries: 15
+      delay: 4
+      until: health_check.status == 200
+      ignore_errors: yes
+
+    - name: 11. Fallback verification via curl
+      command: "curl -s -f http://127.0.0.1:{{ app_port }}/health"
+      register: curl_health
+      retries: 10
+      delay: 3
+      until: curl_health.rc == 0
+      when: health_check.failed is defined and health_check.failed
+
+    - name: 12. Display deployment verification report
+      debug:
+        msg:
+          - "=========================================================="
+          - "EXAMVAULT DEPLOYMENT SUCCESSFUL!"
+          - "Application is live and listening on port {{ app_port }}."
+          - "Health check endpoint: http://localhost:{{ app_port }}/health"
+          - "=========================================================="

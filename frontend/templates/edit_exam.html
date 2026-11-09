@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Examination | ExamVault Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/create_exam.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="page-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>ExamVault</h2>
+        <p class="sidebar-label">ADMIN PANEL</p>
+
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/create-exam">Create Examination</a>
+        <a href="/admin/exams" class="active">Manage Examinations</a>
+        <a href="/admin/students">Students</a>
+        <a href="/admin/results">Results</a>
+        <a href="/logout">Logout</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <header>
+            <p>ADMINISTRATION / EXAMINATIONS / EDIT</p>
+            <h1>Edit Examination</h1>
+            <span>Update examination details, timing, marks, or status.</span>
+        </header>
+
+        <section class="form-card">
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <div class="form-heading">
+                <h2>Examination #{{ exam.id }} Details</h2>
+                <p>Modify the values below and click Save Changes.</p>
+            </div>
+
+            <form method="POST">
+
+                <div class="form-group">
+                    <label>Examination Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value="{{ exam.title }}"
+                        placeholder="e.g. Python Programming Assessment"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input
+                        type="text"
+                        name="subject"
+                        value="{{ exam.subject }}"
+                        placeholder="e.g. Computer Science"
+                        required>
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label>Duration (Minutes)</label>
+                        <input
+                            type="number"
+                            name="duration"
+                            min="1"
+                            value="{{ exam.duration }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Marks</label>
+                        <input
+                            type="number"
+                            name="total_marks"
+                            min="1"
+                            value="{{ exam.total_marks }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" style="width:100%;padding:14px;border:1px solid #d0d7de;border-radius:8px;font-size:15px;background:#fff;">
+                            <option value="active" {% if exam.status == 'active' %}selected{% endif %}>Active (Available to students)</option>
+                            <option value="inactive" {% if exam.status == 'inactive' %}selected{% endif %}>Inactive (Hidden from students)</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label>Examination Description &amp; Instructions</label>
+                    <textarea
+                        name="description"
+                        rows="4"
+                        placeholder="Enter any special instructions for students...">{{ exam.description or '' }}</textarea>
+                </div>
+
+                <div style="display:flex;gap:15px;align-items:center;margin-top:20px;">
+                    <button type="submit">Save Changes</button>
+                    <a href="/admin/exams" style="color:#64748b;text-decoration:none;font-weight:600;padding:12px 20px;">Cancel</a>
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

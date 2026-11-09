@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examination Results | ExamVault Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_exams.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .badge-pass { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; }
+        .badge-fail { background: #fee2e2; color: #b91c1c; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; }
+        .filter-bar { background: #fff; padding: 18px 24px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e2e8f0; display: flex; gap: 15px; align-items: center; }
+        .filter-select { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; min-width: 250px; }
+        .btn-action { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; background: #eff6ff; color: #1d4ed8; }
+        .btn-action:hover { background: #dbeafe; }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>ExamVault</h2>
+        <p class="sidebar-label">ADMIN PANEL</p>
+
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/create-exam">Create Examination</a>
+        <a href="/admin/exams">Manage Examinations</a>
+        <a href="/admin/students">Students</a>
+        <a href="/admin/results" class="active">Results</a>
+        <a href="/logout">Logout</a>
+    </aside>
+
+    <main class="main-content">
+
+        <header>
+            <p>ADMINISTRATION / ASSESSMENT MONITORING</p>
+            <h1>Examination Results &amp; Submissions</h1>
+            <span>Monitor student performance, scores, and completion statuses across all examinations.</span>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <p>Total Submissions</p>
+                <h2>{{ submissions|length }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <p>Passed (40%+)</p>
+                <h2>{{ passed_count }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <p>Average Percentage</p>
+                <h2>{{ avg_percent }}%</h2>
+            </div>
+        </section>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+            <label for="examFilter" style="font-weight:700;font-size:13px;color:#0b1f3a;">Filter by Examination:</label>
+            <select id="examFilter" class="filter-select" onchange="filterResults()">
+                <option value="all">All Examinations ({{ submissions|length }})</option>
+                {% for exam in exams %}
+                    <option value="{{ exam.id }}" {% if selected_exam_id == exam.id %}selected{% endif %}>
+                        {{ exam.title }} ({{ exam.subject }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <section class="table-card">
+            <div class="table-heading">
+                <div>
+                    <h2>Student Submissions</h2>
+                    <p>Verified examination attempts submitted by students.</p>
+                </div>
+            </div>
+
+            {% if submissions %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student Email</th>
+                            <th>Examination</th>
+                            <th>Subject</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Result Status</th>
+                            <th>Submitted At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in submissions %}
+                        <tr>
+                            <td>#{{ sub.id }}</td>
+                            <td><strong>{{ sub.student_email }}</strong></td>
+                            <td>{{ sub.exam_title }}</td>
+                            <td>{{ sub.subject }}</td>
+                            <td><strong>{{ sub.score }}</strong> / {{ sub.maximum_score }}</td>
+                            <td>
+                                <strong>{{ sub.percentage }}%</strong>
+                            </td>
+                            <td>
+                                {% if sub.percentage >= 40 %}
+                                    <span class="badge-pass">PASS</span>
+                                {% else %}
+                                    <span class="badge-fail">FAIL</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ sub.submitted_at }}</td>
+                            <td>
+                                <a href="{{ url_for('exam_result', submission_id=sub.id) }}" class="btn-action">
+                                    View Breakdown &rarr;
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No Submissions Found</h3>
+                <p>No student submissions have been recorded yet for the selected criteria.</p>
+            </div>
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    function filterResults() {
+        const examId = document.getElementById("examFilter").value;
+        if (examId === "all") {
+            window.location.href = "/admin/results";
+        } else {
+            window.location.href = "/admin/results?exam_id=" + examId;
+        }
+    }
+</script>
+
+</body>
+</html>

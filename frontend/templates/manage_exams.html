@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Examinations | ExamVault Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_exams.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .action-btn-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .btn-action-small { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-decoration: none; display: inline-block; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-questions { background: #eff6ff; color: #1d4ed8; }
+        .btn-questions:hover { background: #dbeafe; }
+        .btn-edit { background: #fef3c7; color: #92400e; }
+        .btn-edit:hover { background: #fde68a; }
+        .btn-results { background: #ecfdf5; color: #065f46; }
+        .btn-results:hover { background: #d1fae5; }
+        .btn-delete { background: #fee2e2; color: #991b1b; }
+        .btn-delete:hover { background: #fecaca; }
+        .status.inactive { background: #f1f5f9; color: #64748b; }
+        .status.active { background: #dcfce7; color: #15803d; }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <aside class="sidebar">
+        <h2>ExamVault</h2>
+        <p class="sidebar-label">ADMIN PANEL</p>
+
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/create-exam">Create Examination</a>
+        <a href="/admin/exams" class="active">Manage Examinations</a>
+        <a href="/admin/students">Students</a>
+        <a href="/admin/results">Results</a>
+        <a href="/logout">Logout</a>
+    </aside>
+
+    <main class="main-content">
+
+        <header>
+            <p>ADMINISTRATION / EXAMINATIONS</p>
+            <h1>Manage Examinations</h1>
+            <span>Create, configure, edit questions, monitor submissions, and manage all examinations.</span>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}" style="padding:14px 18px;border-radius:10px;font-size:14px;font-weight:600;margin-bottom:24px;background:#def7ec;color:#03543f;border:1px solid #bcf0da;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="stats-container">
+
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <p>Total Examinations</p>
+                <h2>{{ exams|length }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">✓</div>
+                <p>Active Examinations</p>
+                <h2>{{ exams|selectattr('status', 'equalto', 'active')|list|length }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">⏱</div>
+                <p>Total Duration</p>
+                <h2>{{ exams|sum(attribute='duration') }} min</h2>
+            </div>
+
+        </section>
+
+        <section class="table-card">
+
+            <div class="table-heading">
+                <div>
+                    <h2>All Examinations</h2>
+                    <p>Examination records stored in the database.</p>
+                </div>
+
+                <a href="/admin/create-exam" class="create-button">
+                    + Create Examination
+                </a>
+            </div>
+
+            {% if exams %}
+
+            <div class="table-wrapper">
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Examination</th>
+                            <th>Subject</th>
+                            <th>Duration</th>
+                            <th>Total Marks</th>
+                            <th>Questions</th>
+                            <th>Submissions</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td>#{{ exam.id }}</td>
+
+                            <td>
+                                <strong>{{ exam.title }}</strong>
+                                <small style="display:block;color:#64748b;font-size:12px;">{{ exam.description or 'No description provided' }}</small>
+                            </td>
+
+                            <td>{{ exam.subject }}</td>
+                            <td>{{ exam.duration }} min</td>
+                            <td>{{ exam.total_marks }}</td>
+                            <td><strong>{{ exam.question_count if exam.question_count is defined else '-' }}</strong></td>
+                            <td><strong>{{ exam.submission_count if exam.submission_count is defined else '-' }}</strong></td>
+
+                            <td>
+                                <span class="status {{ exam.status }}">
+                                    {{ exam.status|capitalize }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="action-btn-group">
+                                    <a class="btn-action-small btn-questions"
+                                       href="{{ url_for('manage_questions', exam_id=exam.id) }}"
+                                       title="Add or Edit Questions">
+                                        + Questions
+                                    </a>
+
+                                    <a class="btn-action-small btn-edit"
+                                       href="{{ url_for('edit_exam', exam_id=exam.id) }}"
+                                       title="Edit Examination">
+                                        ✎ Edit
+                                    </a>
+
+                                    <a class="btn-action-small btn-results"
+                                       href="/admin/results?exam_id={{ exam.id }}"
+                                       title="View Submissions">
+                                        📊 Results
+                                    </a>
+
+                                    <form action="{{ url_for('delete_exam', exam_id=exam.id) }}"
+                                          method="POST"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('Are you sure you want to delete this examination? All questions, student attempts, and submission records will be permanently removed.');">
+                                        <button type="submit" class="btn-action-small btn-delete" title="Delete Examination">
+                                            ✕ Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No Examinations Found</h3>
+                <p>You haven't created any examinations yet.</p>
+                <a href="/admin/create-exam" class="create-button">
+                    Create Your First Examination
+                </a>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

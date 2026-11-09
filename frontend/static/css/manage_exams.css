@@ -1,0 +1,284 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f6fb;
+    color: #172b4d;
+}
+
+.page-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+    width: 250px;
+    background: #0b1f3a;
+    color: white;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.sidebar h2 {
+    font-size: 25px;
+    margin-bottom: 45px;
+}
+
+.sidebar-label {
+    font-size: 11px;
+    color: #91a4bd;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #c4d0df;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: #173b65;
+    color: white;
+}
+
+/* Main Content */
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    padding: 45px;
+}
+
+header p {
+    color: #64748b;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+}
+
+header h1 {
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: #0b1f3a;
+}
+
+header span {
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Statistics */
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 35px;
+}
+
+.stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(15, 35, 65, 0.04);
+}
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf2fc;
+    border-radius: 10px;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.stat-card p {
+    color: #718096;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.stat-card h2 {
+    color: #0b1f3a;
+    font-size: 27px;
+}
+
+/* Examination Table */
+
+.table-card {
+    background: white;
+    margin-top: 30px;
+    padding: 28px;
+    border-radius: 14px;
+    box-shadow: 0 5px 25px rgba(15, 35, 65, 0.05);
+}
+
+.table-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.table-heading h2 {
+    font-size: 21px;
+    color: #0b1f3a;
+    margin-bottom: 8px;
+}
+
+.table-heading p {
+    font-size: 13px;
+    color: #718096;
+}
+
+/* Create Button */
+
+.create-button {
+    display: inline-block;
+    text-decoration: none;
+    background: #1765b5;
+    color: white;
+    padding: 13px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.create-button:hover {
+    background: #0b1f3a;
+}
+
+/* Table */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+thead {
+    background: #f5f8fc;
+}
+
+th {
+    text-align: left;
+    padding: 16px 12px;
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+td {
+    padding: 18px 12px;
+    border-bottom: 1px solid #edf0f5;
+    font-size: 13px;
+    color: #40516b;
+}
+
+td strong {
+    display: block;
+    color: #172b4d;
+    margin-bottom: 6px;
+}
+
+td small {
+    display: block;
+    color: #94a3b8;
+    font-size: 11px;
+    max-width: 180px;
+}
+
+/* Status */
+
+.status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.status.active {
+    background: #e6f7ed;
+    color: #187744;
+}
+
+/* Empty State */
+
+.empty-state {
+    text-align: center;
+    padding: 55px 20px;
+}
+
+.empty-icon {
+    font-size: 45px;
+    margin-bottom: 15px;
+}
+
+.empty-state h3 {
+    color: #0b1f3a;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #718096;
+    font-size: 14px;
+    margin-bottom: 22px;
+}
+
+/* Responsive */
+
+@media (max-width: 1000px) {
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .main-content {
+        padding: 22px;
+    }
+
+    .table-card {
+        padding: 18px;
+    }
+
+    .table-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

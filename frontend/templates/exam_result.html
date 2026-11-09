@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examination Result - {{ result.title }} | ExamVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/exam_result.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="result-layout">
+
+    <header class="result-navbar">
+        <div class="brand">
+            <div class="brand-icon">E</div>
+            <div>
+                <h2>ExamVault</h2>
+                <small>PERFORMANCE REPORT</small>
+            </div>
+        </div>
+
+        <nav class="nav-links">
+            <a href="/student">▦ Dashboard</a>
+            <a href="/student/exams">▤ All Examinations</a>
+            <button onclick="window.print()" class="btn-print">🖨 Print Report</button>
+            <a href="/logout" class="nav-logout">↪ Logout</a>
+        </nav>
+    </header>
+
+    <main class="result-container">
+
+        <!-- Score Hero Card -->
+        <section class="hero-card {{ status|lower }}">
+
+            <div class="hero-left">
+                <span class="eyebrow">OFFICIAL EXAMINATION RESULT</span>
+                <h1>{{ result.title }}</h1>
+                <p class="subject-info">{{ result.subject }} &bull; Submitted on {{ result.submitted_at }}</p>
+
+                <div class="badge-status {{ status|lower }}">
+                    {% if status == 'PASS' %}
+                        <span class="status-symbol">✓</span> PASSED WITH MERIT
+                    {% else %}
+                        <span class="status-symbol">✗</span> FAILED TO MEET PASS CRITERIA
+                    {% endif %}
+                </div>
+
+                <p class="hero-note">
+                    {% if status == 'PASS' %}
+                        Congratulations! You have successfully satisfied all requirements for this assessment.
+                    {% else %}
+                        You did not achieve the required 40% passing benchmark for this assessment. Review your answers below to prepare for future tests.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="hero-right">
+                <div class="score-circle-wrapper">
+                    <div class="score-circle {{ status|lower }}">
+                        <strong class="score-num">{{ result.score }}</strong>
+                        <span class="score-max">/ {{ result.maximum_score }}</span>
+                    </div>
+                    <div class="score-percentage">{{ percentage }}%</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Metrics Grid -->
+        <section class="metrics-grid">
+
+            <div class="metric-card">
+                <div class="metric-icon blue">📝</div>
+                <div>
+                    <span class="metric-title">TOTAL QUESTIONS</span>
+                    <strong>{{ total_questions }}</strong>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon green">✓</div>
+                <div>
+                    <span class="metric-title">CORRECT</span>
+                    <strong class="text-green">{{ correct_count }}</strong>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon red">✗</div>
+                <div>
+                    <span class="metric-title">INCORRECT</span>
+                    <strong class="text-red">{{ incorrect_count }}</strong>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon orange">⏱</div>
+                <div>
+                    <span class="metric-title">TIME TAKEN</span>
+                    <strong>{{ time_taken }}</strong>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Detailed Question Breakdown -->
+        <section class="review-section">
+
+            <div class="review-header">
+                <div>
+                    <h2>Question-by-Question Review</h2>
+                    <p>Review the questions, your submitted responses, and the correct answers.</p>
+                </div>
+                <div class="legend">
+                    <span class="legend-item"><span class="dot correct"></span> Your Correct Answer</span>
+                    <span class="legend-item"><span class="dot wrong"></span> Your Incorrect Choice</span>
+                    <span class="legend-item"><span class="dot key"></span> Correct Answer Key</span>
+                </div>
+            </div>
+
+            <div class="questions-list">
+
+                {% for q in answer_details %}
+                <article class="question-review-card {% if q.is_correct %}card-correct{% elif q.selected_option %}card-wrong{% else %}card-unanswered{% endif %}">
+
+                    <header class="q-header">
+                        <div class="q-title-left">
+                            <span class="q-badge">Question {{ loop.index }}</span>
+                            <span class="q-marks-total">{{ q.marks }} Mark(s)</span>
+                        </div>
+
+                        <div class="q-status-badge">
+                            {% if q.is_correct %}
+                                <span class="tag tag-correct">✓ Correct (+{{ q.marks_awarded }})</span>
+                            {% elif q.selected_option %}
+                                <span class="tag tag-wrong">✗ Incorrect (0)</span>
+                            {% else %}
+                                <span class="tag tag-skipped">○ Not Attempted (0)</span>
+                            {% endif %}
+                        </div>
+                    </header>
+
+                    <h3 class="q-text">{{ q.question_text }}</h3>
+
+                    <div class="options-container">
+
+                        <!-- Option A -->
+                        <div class="opt-box
+                            {% if q.correct_answer == 'A' %}opt-correct{% endif %}
+                            {% if q.selected_option == 'A' and not q.is_correct %}opt-wrong{% endif %}
+                            {% if q.selected_option == 'A' %}opt-chosen{% endif %}
+                        ">
+                            <span class="opt-letter">A</span>
+                            <span class="opt-content">{{ q.option_a }}</span>
+                            {% if q.selected_option == 'A' %}
+                                <span class="badge-chosen">Your Choice</span>
+                            {% endif %}
+                            {% if q.correct_answer == 'A' %}
+                                <span class="badge-key">Correct Answer</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Option B -->
+                        <div class="opt-box
+                            {% if q.correct_answer == 'B' %}opt-correct{% endif %}
+                            {% if q.selected_option == 'B' and not q.is_correct %}opt-wrong{% endif %}
+                            {% if q.selected_option == 'B' %}opt-chosen{% endif %}
+                        ">
+                            <span class="opt-letter">B</span>
+                            <span class="opt-content">{{ q.option_b }}</span>
+                            {% if q.selected_option == 'B' %}
+                                <span class="badge-chosen">Your Choice</span>
+                            {% endif %}
+                            {% if q.correct_answer == 'B' %}
+                                <span class="badge-key">Correct Answer</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Option C -->
+                        <div class="opt-box
+                            {% if q.correct_answer == 'C' %}opt-correct{% endif %}
+                            {% if q.selected_option == 'C' and not q.is_correct %}opt-wrong{% endif %}
+                            {% if q.selected_option == 'C' %}opt-chosen{% endif %}
+                        ">
+                            <span class="opt-letter">C</span>
+                            <span class="opt-content">{{ q.option_c }}</span>
+                            {% if q.selected_option == 'C' %}
+                                <span class="badge-chosen">Your Choice</span>
+                            {% endif %}
+                            {% if q.correct_answer == 'C' %}
+                                <span class="badge-key">Correct Answer</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Option D -->
+                        <div class="opt-box
+                            {% if q.correct_answer == 'D' %}opt-correct{% endif %}
+                            {% if q.selected_option == 'D' and not q.is_correct %}opt-wrong{% endif %}
+                            {% if q.selected_option == 'D' %}opt-chosen{% endif %}
+                        ">
+                            <span class="opt-letter">D</span>
+                            <span class="opt-content">{{ q.option_d }}</span>
+                            {% if q.selected_option == 'D' %}
+                                <span class="badge-chosen">Your Choice</span>
+                            {% endif %}
+                            {% if q.correct_answer == 'D' %}
+                                <span class="badge-key">Correct Answer</span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </article>
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <!-- Bottom Actions -->
+        <div class="bottom-actions">
+            <a href="/student" class="btn-primary">
+                &larr; Return to Dashboard
+            </a>
+            <a href="/student/exams" class="btn-secondary">
+                View All Examinations
+            </a>
+        </div>
+
+        <footer class="result-footer">
+            &copy; 2026 ExamVault &bull; Secure Online Examination System &bull; All assessment records are cryptographically verified
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>

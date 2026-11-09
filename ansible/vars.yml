@@ -1,0 +1,21 @@
+# ==============================================================
+# ExamVault Deployment Variables
+# For production, override sensitive passwords using Ansible Vault:
+#   ansible-vault encrypt_string 'my-super-secret' --name 'db_password'
+# ==============================================================
+
+app_name: examvault
+app_dir: /opt/examvault
+app_port: 5003
+
+# Application Security
+secret_key: "{{ lookup('env', 'SECRET_KEY') | default('prod-secret-examvault-secure-token-987654321', true) }}"
+
+# Database Settings
+db_type: mysql
+db_host: db
+db_port: 3306
+db_name: examvault
+db_user: examvault_user
+db_password: "{{ lookup('env', 'DB_PASSWORD') | default('examvault_db_secure_pass', true) }}"
+mysql_root_password: "{{ lookup('env', 'MYSQL_ROOT_PASSWORD') | default('examvault_root_master_pass', true) }}"

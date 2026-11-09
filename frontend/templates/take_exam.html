@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.title }} | ExamVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/take_exam.css') }}">
+</head>
+<body>
+
+<header class="exam-header">
+    <div class="brand">Exam<span>Vault</span></div>
+    <div class="timer-box">
+        <span>TIME REMAINING</span>
+        <strong id="timer">Loading...</strong>
+    </div>
+</header>
+
+<main class="exam-container">
+
+    <section class="exam-heading">
+        <p class="eyebrow">ONLINE EXAMINATION</p>
+        <h1>{{ exam.title }}</h1>
+        <p>{{ exam.subject }} &nbsp; | &nbsp; {{ questions|length }} Questions
+            &nbsp; | &nbsp; {{ maximum_score }} Marks</p>
+    </section>
+
+    <form id="examForm" method="POST">
+
+        {% for question in questions %}
+        <section class="question-card">
+            <div class="question-top">
+                <span>QUESTION {{ loop.index }}</span>
+                <span>{{ question.marks }} Mark(s)</span>
+            </div>
+
+            <h3>{{ question.question_text }}</h3>
+
+            <label class="option">
+                <input type="radio" name="answer_{{ question.id }}" value="A">
+                <span class="option-letter">A</span>
+                <span>{{ question.option_a }}</span>
+            </label>
+
+            <label class="option">
+                <input type="radio" name="answer_{{ question.id }}" value="B">
+                <span class="option-letter">B</span>
+                <span>{{ question.option_b }}</span>
+            </label>
+
+            <label class="option">
+                <input type="radio" name="answer_{{ question.id }}" value="C">
+                <span class="option-letter">C</span>
+                <span>{{ question.option_c }}</span>
+            </label>
+
+            <label class="option">
+                <input type="radio" name="answer_{{ question.id }}" value="D">
+                <span class="option-letter">D</span>
+                <span>{{ question.option_d }}</span>
+            </label>
+        </section>
+        {% endfor %}
+
+        <div class="submit-area">
+            <p>Review your answers before submitting.</p>
+            <button type="submit" id="submitButton">Submit Examination</button>
+        </div>
+
+    </form>
+</main>
+
+<script>
+    let remainingSeconds = {{ remaining_seconds }};
+    const timerElement = document.getElementById("timer");
+    const examForm = document.getElementById("examForm");
+    const submitButton = document.getElementById("submitButton");
+
+    let submitted = false;
+
+    function submitExam() {
+        if (submitted) return;
+
+        submitted = true;
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+        examForm.submit();
+    }
+
+    function updateTimer() {
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+
+        timerElement.textContent =
+            String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0");
+
+        if (remainingSeconds <= 0) {
+            timerElement.textContent = "00:00";
+            submitExam();
+            return;
+        }
+
+        if (remainingSeconds <= 300) {
+            timerElement.classList.add("warning");
+        }
+
+        remainingSeconds--;
+    }
+
+    examForm.addEventListener("submit", function(event) {
+        if (submitted) {
+            event.preventDefault();
+            return;
+        }
+
+        if (!confirm("Are you sure you want to submit your examination?")) {
+            event.preventDefault();
+            return;
+        }
+
+        submitted = true;
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+    });
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+</script>
+
+</body>
+</html>

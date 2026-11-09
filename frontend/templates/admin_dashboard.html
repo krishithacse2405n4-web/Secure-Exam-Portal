@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | ExamVault</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="logo">E</div>
+            <div>
+                <h2>ExamVault</h2>
+                <small>ADMIN PORTAL</small>
+            </div>
+        </div>
+
+        <p class="menu-title">MAIN MENU</p>
+
+        <a href="/admin" class="active">▦ Dashboard</a>
+        <a href="/admin/exams">▤ Examinations</a>
+        <a href="/admin/students">♙ Students</a>
+        <a href="/admin/results">▧ Results</a>
+
+        <div class="sidebar-bottom">
+            <div class="secure">♢ Secure Administrator</div>
+            <a href="/logout" class="logout">↪ Logout</a>
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <header class="header">
+
+            <div>
+                <h1>Admin Dashboard</h1>
+                <p>Manage examinations and monitor student performance in real time.</p>
+            </div>
+
+            <div class="admin-profile">
+                <div class="avatar">A</div>
+                <div>
+                    <strong>Administrator</strong>
+                    <small>System Manager</small>
+                </div>
+            </div>
+
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div style="background:#def7ec;color:#03543f;border:1px solid #bcf0da;padding:14px;border-radius:10px;margin-bottom:20px;font-size:14px;font-weight:600;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="welcome">
+
+            <div>
+                <span>ADMINISTRATION PANEL</span>
+                <h2>Welcome back, Administrator!</h2>
+                <p>Monitor your active examinations, candidate submissions, and results.</p>
+            </div>
+
+            <div class="welcome-icon">✦</div>
+
+        </section>
+
+        <!-- Dynamic Statistics -->
+        <section class="stats">
+
+            <div class="stat-card">
+                <div class="icon blue">♙</div>
+                <p>Total Students</p>
+                <h2>{{ total_students }}</h2>
+                <small>Active candidate accounts</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon green">▤</div>
+                <p>Total Examinations</p>
+                <h2>{{ total_exams }}</h2>
+                <small>Created examinations</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon orange">◷</div>
+                <p>Active Exams</p>
+                <h2>{{ active_exams }}</h2>
+                <small>Currently published</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon purple">▧</div>
+                <p>Submissions</p>
+                <h2>{{ total_submissions }}</h2>
+                <small>Total evaluated attempts</small>
+            </div>
+
+        </section>
+
+        <section class="content-grid">
+
+            <div class="panel" id="exams">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Examination Management</h2>
+                        <p>Create, configure, and manage examinations.</p>
+                    </div>
+                </div>
+
+                <div class="action-card">
+                    <div>
+                        <h3>Create New Examination</h3>
+                        <p>Configure a new timed assessment for students.</p>
+                    </div>
+
+                    <a href="/admin/create-exam" class="action-button">
+                        + Create Exam
+                    </a>
+                </div>
+
+                <div class="action-card">
+                    <div>
+                        <h3>Manage Examinations</h3>
+                        <p>Edit, add questions, or review created examinations.</p>
+                    </div>
+
+                    <a href="/admin/exams" class="secondary-button">
+                        View Exams &rarr;
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="panel" id="students">
+
+                <div class="panel-heading">
+                    <h2>Student Activity</h2>
+                </div>
+
+                <div class="overview">
+                    <div class="overview-icon">♙</div>
+                    <div>
+                        <h2>{{ total_students }}</h2>
+                        <p>Active Students</p>
+                    </div>
+                </div>
+
+                <div class="overview">
+                    <div class="overview-icon">✓</div>
+                    <div>
+                        <h2>{{ total_submissions }}</h2>
+                        <p>Completed Submissions</p>
+                    </div>
+                </div>
+
+                <div class="overview">
+                    <div class="overview-icon">◷</div>
+                    <div>
+                        <h2>{{ pending_attempts }}</h2>
+                        <p>In-Progress Attempts</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Live Activity Table -->
+        <section class="panel results" id="results">
+
+            <div class="panel-heading">
+                <div>
+                    <h2>Examinations Overview</h2>
+                    <p>Live summary of all examinations and submissions.</p>
+                </div>
+                <a href="/admin/results" style="font-size:12px;font-weight:700;color:#1764dc;text-decoration:none;">
+                    VIEW ALL RESULTS &rarr;
+                </a>
+            </div>
+
+            <div class="table-wrapper">
+
+                {% if exams %}
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Examination</th>
+                            <th>Subject</th>
+                            <th>Duration</th>
+                            <th>Questions</th>
+                            <th>Submissions</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td><strong>{{ exam.title }}</strong></td>
+                            <td>{{ exam.subject }}</td>
+                            <td>{{ exam.duration }} Minutes</td>
+                            <td>{{ exam.question_count }} Qs</td>
+                            <td><strong>{{ exam.submission_count }}</strong></td>
+                            <td>
+                                {% if exam.status == 'active' %}
+                                    <span class="available">Active</span>
+                                {% else %}
+                                    <span class="pending">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/admin/exams" style="font-size:12px;font-weight:600;color:#1764dc;text-decoration:none;">
+                                    Manage &rarr;
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+                {% else %}
+                <p style="padding:20px;text-align:center;color:#64748b;">No examinations created yet.</p>
+                {% endif %}
+
+            </div>
+
+        </section>
+
+        <footer>
+            &copy; 2026 ExamVault | Administration Portal
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>

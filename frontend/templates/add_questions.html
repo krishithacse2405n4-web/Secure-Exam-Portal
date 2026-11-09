@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Questions | ExamVault</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/add_questions.css') }}">
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <aside class="sidebar">
+        <h2>ExamVault</h2>
+        <p class="sidebar-label">ADMIN PANEL</p>
+
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/create-exam">Create Examination</a>
+        <a href="/admin/exams" class="active">Manage Examinations</a>
+        <a href="/admin/students">Students</a>
+        <a href="/admin/results">Results</a>
+        <a href="/logout">Logout</a>
+    </aside>
+
+    <main class="main-content">
+
+        <header>
+            <p>ADMINISTRATION / QUESTION MANAGEMENT</p>
+            <h1>Add Examination Questions</h1>
+            <span>Create multiple-choice questions for your examination.</span>
+        </header>
+
+        <section class="exam-info">
+            <div>
+                <p>EXAMINATION TITLE</p>
+                <h2>{{ exam.title }}</h2>
+            </div>
+
+            <div>
+                <p>SUBJECT</p>
+                <h2>{{ exam.subject }}</h2>
+            </div>
+
+            <div>
+                <p>DURATION</p>
+                <h2>{{ exam.duration }} Minutes</h2>
+            </div>
+
+            <div>
+                <p>TOTAL MARKS</p>
+                <h2>{{ exam.total_marks }}</h2>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="form-card">
+
+            <div class="section-heading">
+                <h2>Add New Question</h2>
+                <p>Enter the question, four answer options and correct answer.</p>
+            </div>
+
+            <form method="POST">
+
+                <div class="form-group">
+                    <label>Question</label>
+                    <textarea
+                        name="question_text"
+                        rows="3"
+                        placeholder="Enter your question here..."
+                        required></textarea>
+                </div>
+
+                <div class="options-grid">
+
+                    <div class="form-group">
+                        <label>Option A</label>
+                        <input type="text" name="option_a"
+                               placeholder="Enter option A" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option B</label>
+                        <input type="text" name="option_b"
+                               placeholder="Enter option B" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option C</label>
+                        <input type="text" name="option_c"
+                               placeholder="Enter option C" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option D</label>
+                        <input type="text" name="option_d"
+                               placeholder="Enter option D" required>
+                    </div>
+
+                </div>
+
+                <div class="bottom-fields">
+
+                    <div class="form-group">
+                        <label>Correct Answer</label>
+
+                        <select name="correct_answer" required>
+                            <option value="">Select correct answer</option>
+                            <option value="A">Option A</option>
+                            <option value="B">Option B</option>
+                            <option value="C">Option C</option>
+                            <option value="D">Option D</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marks</label>
+                        <input type="number" name="marks"
+                               min="1" value="1" required>
+                    </div>
+
+                </div>
+
+                <button type="submit">+ Add Question</button>
+
+            </form>
+
+        </section>
+
+        <section class="questions-card">
+
+            <div class="section-heading">
+                <h2>Added Questions</h2>
+                <p>{{ questions|length }} question(s) added so far.</p>
+            </div>
+
+            {% if questions %}
+
+                {% for question in questions %}
+
+                <div class="question-item">
+
+                    <div class="question-number">
+                        Q{{ loop.index }}
+                    </div>
+
+                    <div class="question-content">
+                        <h3>{{ question.question_text }}</h3>
+
+                        <div class="answer-options">
+                            <span {% if question.correct_answer == 'A' %}style="font-weight:bold;color:#16a34a;"{% endif %}>A. {{ question.option_a }}</span>
+                            <span {% if question.correct_answer == 'B' %}style="font-weight:bold;color:#16a34a;"{% endif %}>B. {{ question.option_b }}</span>
+                            <span {% if question.correct_answer == 'C' %}style="font-weight:bold;color:#16a34a;"{% endif %}>C. {{ question.option_c }}</span>
+                            <span {% if question.correct_answer == 'D' %}style="font-weight:bold;color:#16a34a;"{% endif %}>D. {{ question.option_d }}</span>
+                        </div>
+
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:10px;">
+                            <p class="marks" style="margin:0;">
+                                <strong style="color:#16a34a;background:#dcfce7;padding:3px 8px;border-radius:4px;">✓ Correct: Option {{ question.correct_answer }}</strong> &nbsp;&bull;&nbsp; {{ question.marks }} mark(s)
+                            </p>
+                            <div style="display:flex;gap:8px;">
+                                <a href="{{ url_for('edit_question', exam_id=exam.id, question_id=question.id) }}"
+                                   style="padding:5px 12px;background:#fef3c7;color:#92400e;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;">
+                                    ✎ Edit
+                                </a>
+                                <form action="{{ url_for('delete_question', exam_id=exam.id, question_id=question.id) }}"
+                                      method="POST"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this question?');">
+                                    <button type="submit"
+                                            style="padding:5px 12px;background:#fee2e2;color:#991b1b;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">
+                                        ✕ Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty-state">
+                    <h3>No questions added yet</h3>
+                    <p>Your added questions will appear here.</p>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <a href="/admin/exams" class="back-link">
+            ← Back to Manage Examinations
+        </a>
+
+    </main>
+
+</div>
+
+</body>
+</html>

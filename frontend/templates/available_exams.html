@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Examinations | ExamVault</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/available_exams.css') }}">
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <aside class="sidebar">
+        <h2>ExamVault</h2>
+        <p class="sidebar-label">STUDENT PORTAL</p>
+
+        <a href="/student">Dashboard</a>
+        <a href="/student/exams" class="active">Available Examinations</a>
+        <a href="/logout">Logout</a>
+    </aside>
+
+    <main class="main-content">
+
+        <header>
+            <p>STUDENT PORTAL / EXAMINATIONS</p>
+            <h1>Available Examinations</h1>
+            <span>View your examinations and track your assessment progress.</span>
+        </header>
+
+        <section class="welcome-card">
+            <div>
+                <p>WELCOME BACK</p>
+                <h2>{{ email }}</h2>
+                <span>Choose an examination to continue your learning journey.</span>
+            </div>
+            <div class="welcome-icon">🎓</div>
+        </section>
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+                <p>Total Examinations</p>
+                <h2>{{ exams|length }}</h2>
+            </div>
+
+            <div class="summary-card">
+                <p>Attempted</p>
+                <h2>{{ exams|selectattr('submission_id')|list|length }}</h2>
+            </div>
+
+            <div class="summary-card">
+                <p>Not Attempted</p>
+                <h2>{{ exams|rejectattr('submission_id')|list|length }}</h2>
+            </div>
+
+        </section>
+
+        <section class="exams-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Your Examinations</h2>
+                    <p>Examinations published by your administrator.</p>
+                </div>
+            </div>
+
+            {% if exams %}
+
+            <div class="exam-grid">
+
+                {% for exam in exams %}
+
+                <article class="exam-card">
+
+                    <div class="exam-top">
+                        <div class="exam-icon">📝</div>
+
+                        {% if exam.submission_id %}
+                            <span class="status attempted">Attempted</span>
+                        {% elif exam.attempt_id %}
+                            <span class="status" style="background:#fff4e5;color:#b76e00;">In Progress</span>
+                        {% else %}
+                            <span class="status available">Available</span>
+                        {% endif %}
+                    </div>
+
+                    <h3>{{ exam.title }}</h3>
+
+                    <p class="subject">{{ exam.subject }}</p>
+
+                    <p class="description">
+                        {{ exam.description or 'Complete this examination within the allotted time.' }}
+                    </p>
+
+                    <div class="exam-details">
+
+                        <div>
+                            <span>Duration</span>
+                            <strong>{{ exam.duration }} min</strong>
+                        </div>
+
+                        <div>
+                            <span>Total Marks</span>
+                            <strong>{{ exam.total_marks }}</strong>
+                        </div>
+
+                    </div>
+
+                    {% if exam.submission_id %}
+
+                        <a href="{{ url_for('exam_result', submission_id=exam.submission_id) }}"
+                           class="exam-button">
+                            View Result
+                        </a>
+
+                    {% elif exam.attempt_id %}
+
+                        <a href="{{ url_for('take_exam', exam_id=exam.id) }}"
+                           class="exam-button" style="background:#b76e00;">
+                            Resume Exam
+                        </a>
+
+                    {% else %}
+
+                        <a href="{{ url_for('exam_instructions', exam_id=exam.id) }}"
+                           class="exam-button">
+                            Start Exam
+                        </a>
+
+                    {% endif %}
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="empty-state">
+                <div class="empty-icon">📚</div>
+                <h2>No Examinations Available</h2>
+                <p>Your administrator has not published any active examinations yet.</p>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

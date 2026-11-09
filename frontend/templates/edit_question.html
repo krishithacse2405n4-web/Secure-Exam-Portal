@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Question | ExamVault Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/add_questions.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="page-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>ExamVault</h2>
+        <p class="sidebar-label">ADMIN PANEL</p>
+
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/create-exam">Create Examination</a>
+        <a href="/admin/exams" class="active">Manage Examinations</a>
+        <a href="/admin/students">Students</a>
+        <a href="/admin/results">Results</a>
+        <a href="/logout">Logout</a>
+    </aside>
+
+    <main class="main-content">
+
+        <header>
+            <p>ADMINISTRATION / QUESTION MANAGEMENT / EDIT</p>
+            <h1>Edit MCQ Question</h1>
+            <span>Modify question content, options, correct answer, or marks.</span>
+        </header>
+
+        <section class="exam-info">
+            <div>
+                <p>EXAMINATION TITLE</p>
+                <h2>{{ exam.title }}</h2>
+            </div>
+            <div>
+                <p>SUBJECT</p>
+                <h2>{{ exam.subject }}</h2>
+            </div>
+            <div>
+                <p>DURATION</p>
+                <h2>{{ exam.duration }} Minutes</h2>
+            </div>
+            <div>
+                <p>TOTAL MARKS</p>
+                <h2>{{ exam.total_marks }}</h2>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="form-card">
+
+            <div class="section-heading">
+                <h2>Edit Question #{{ question.id }}</h2>
+                <p>Update any details below and click Update Question.</p>
+            </div>
+
+            <form method="POST">
+
+                <div class="form-group">
+                    <label>Question Text</label>
+                    <textarea
+                        name="question_text"
+                        rows="3"
+                        placeholder="Enter the question here..."
+                        required>{{ question.question_text }}</textarea>
+                </div>
+
+                <div class="options-grid">
+
+                    <div class="form-group">
+                        <label>Option A</label>
+                        <input type="text" name="option_a" value="{{ question.option_a }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option B</label>
+                        <input type="text" name="option_b" value="{{ question.option_b }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option C</label>
+                        <input type="text" name="option_c" value="{{ question.option_c }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option D</label>
+                        <input type="text" name="option_d" value="{{ question.option_d }}" required>
+                    </div>
+
+                </div>
+
+                <div class="bottom-fields">
+
+                    <div class="form-group">
+                        <label>Correct Answer</label>
+                        <select name="correct_answer" required>
+                            <option value="A" {% if question.correct_answer == 'A' %}selected{% endif %}>Option A</option>
+                            <option value="B" {% if question.correct_answer == 'B' %}selected{% endif %}>Option B</option>
+                            <option value="C" {% if question.correct_answer == 'C' %}selected{% endif %}>Option C</option>
+                            <option value="D" {% if question.correct_answer == 'D' %}selected{% endif %}>Option D</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marks</label>
+                        <input type="number" name="marks" min="1" value="{{ question.marks }}" required>
+                    </div>
+
+                </div>
+
+                <div style="display:flex;gap:15px;align-items:center;margin-top:20px;">
+                    <button type="submit">Update Question</button>
+                    <a href="{{ url_for('manage_questions', exam_id=exam.id) }}" style="color:#64748b;text-decoration:none;font-weight:600;padding:12px 20px;">Cancel</a>
+                </div>
+
+            </form>
+
+        </section>
+
+        <a href="{{ url_for('manage_questions', exam_id=exam.id) }}" class="back-link">
+            &larr; Back to Examination Questions
+        </a>
+
+    </main>
+
+</div>
+
+</body>
+</html>

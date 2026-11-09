@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ExamVault | Secure Examination Portal</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <nav class="navbar">
+        <div class="brand">
+            <div class="brand-icon">E</div>
+            <div>
+                <h2>ExamVault</h2>
+                <span>SMART EXAMINATION SYSTEM</span>
+            </div>
+        </div>
+
+        <div class="nav-status">
+            <span class="status-dot"></span>
+            Secure Portal
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <section class="hero-section">
+
+            <div class="hero-tag">
+                <span>✦</span> THE FUTURE OF DIGITAL EXAMINATIONS
+            </div>
+
+            <h1>
+                Your knowledge.<br>
+                Your <span>moment.</span><br>
+                Your future.
+            </h1>
+
+            <p class="hero-description">
+                Experience a smarter and more secure way of
+                taking examinations. Access your assessments,
+                track your progress and achieve your goals.
+            </p>
+
+            <div class="feature-list">
+
+                <div class="feature">
+                    <div class="feature-icon">◈</div>
+                    <div>
+                        <h4>Secure Environment</h4>
+                        <p>Protected examination access</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">◷</div>
+                    <div>
+                        <h4>Real-time Assessments</h4>
+                        <p>Timed tests and instant evaluation</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">▤</div>
+                    <div>
+                        <h4>Performance Tracking</h4>
+                        <p>View your examination results</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="hero-decoration">
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+                <div class="center-symbol">E</div>
+            </div>
+
+            <div class="hero-bottom">
+                <span>✦</span> Empowering learning through technology
+            </div>
+
+        </section>
+
+
+        <section class="login-section">
+
+            <div class="login-card">
+
+                <div class="card-top-icon">✦</div>
+
+                <div class="login-heading">
+                    <span class="eyebrow">WELCOME BACK</span>
+                    <h2>Sign in to your account</h2>
+                    <p>Enter your credentials to access your portal.</p>
+                </div>
+
+                <form id="loginForm">
+
+                    <label for="role">ACCOUNT TYPE</label>
+
+                    <div class="select-wrapper">
+                        <span class="field-icon">♙</span>
+                        <select id="role" required>
+                            <option value="student">Student Account</option>
+                            <option value="admin">Administrator Account</option>
+                        </select>
+                    </div>
+
+                    <label for="email">EMAIL ADDRESS</label>
+
+                    <div class="input-wrapper">
+                        <span class="field-icon">✉</span>
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="name@example.com"
+                            autocomplete="username"
+                            required>
+                    </div>
+
+                    <label for="password">PASSWORD</label>
+
+                    <div class="input-wrapper">
+                        <span class="field-icon">▣</span>
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required>
+
+                        <button type="button" class="toggle-password"
+                            id="togglePassword" aria-label="Show password">
+                            Show
+                        </button>
+                    </div>
+
+                    <div class="form-options">
+                        <span>Protected login</span>
+                        <span>256-bit secure access</span>
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        Sign In <span>→</span>
+                    </button>
+
+                    <p id="message" role="alert"></p>
+
+                </form>
+
+                <div class="divider">
+                    <span>SECURE ACCESS</span>
+                </div>
+
+                <div class="security-note">
+                    <span>♢</span>
+                    Your account and examination data are protected.
+                </div>
+
+            </div>
+
+            <p class="copyright">
+                © 2026 ExamVault. All rights reserved.
+            </p>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/static/js/login.js"></script>
+
+<script>
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", function () {
+        const isPassword = passwordInput.type === "password";
+
+        passwordInput.type = isPassword ? "text" : "password";
+        togglePassword.textContent = isPassword ? "Hide" : "Show";
+        togglePassword.setAttribute(
+            "aria-label",
+            isPassword ? "Hide password" : "Show password"
+        );
+    });
+</script>
+
+</body>
+</html>

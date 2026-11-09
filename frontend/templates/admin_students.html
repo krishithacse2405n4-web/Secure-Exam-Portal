@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance | ExamVault Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_exams.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .badge-student { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>ExamVault</h2>
+        <p class="sidebar-label">ADMIN PANEL</p>
+
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/create-exam">Create Examination</a>
+        <a href="/admin/exams">Manage Examinations</a>
+        <a href="/admin/students" class="active">Students</a>
+        <a href="/admin/results">Results</a>
+        <a href="/logout">Logout</a>
+    </aside>
+
+    <main class="main-content">
+
+        <header>
+            <p>ADMINISTRATION / STUDENT MONITORING</p>
+            <h1>Student Performance &amp; Activity</h1>
+            <span>Overview of all student candidates, their completed tests, and aggregate scores.</span>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">♙</div>
+                <p>Total Students</p>
+                <h2>{{ students|length }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">✓</div>
+                <p>Completed Tests</p>
+                <h2>{{ total_completed_tests }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <p>Overall Average</p>
+                <h2>{{ overall_avg }}%</h2>
+            </div>
+        </section>
+
+        <section class="table-card">
+            <div class="table-heading">
+                <div>
+                    <h2>Registered Candidates</h2>
+                    <p>Performance summary for each student enrolled in ExamVault.</p>
+                </div>
+            </div>
+
+            {% if students %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Email</th>
+                            <th>Status</th>
+                            <th>Attempts Started</th>
+                            <th>Examinations Completed</th>
+                            <th>Average Score</th>
+                            <th>Last Active</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for st in students %}
+                        <tr>
+                            <td><strong>{{ st.email }}</strong></td>
+                            <td><span class="badge-student">Enrolled</span></td>
+                            <td>{{ st.attempts_count }}</td>
+                            <td><strong>{{ st.completed_count }}</strong></td>
+                            <td>
+                                <strong style="color:{% if st.average_percentage >= 40 %}#16a34a{% else %}#dc2626{% endif %};">
+                                    {{ st.average_percentage }}%
+                                </strong>
+                            </td>
+                            <td>{{ st.last_active or 'Recent' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <h3>No Students Found</h3>
+                <p>No student candidates have attempted examinations yet.</p>
+            </div>
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

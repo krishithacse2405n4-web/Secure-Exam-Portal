@@ -1,0 +1,15 @@
+.git
+.github
+ansible
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+database/*.db
+.env
+*.log
+.DS_Store

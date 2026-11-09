@@ -50,8 +50,13 @@ jobs:
           docker build -t examvault:ci-test .
 
       - name: Validate Docker Compose Configuration
-        run: |
-          docker compose config
+        env:
+          SECRET_KEY: test-secret-key
+          DB_NAME: examvault
+          DB_USER: examvault_user
+          DB_PASSWORD: test-password
+          MYSQL_ROOT_PASSWORD: test-root-password
+        run: docker compose config
 
       - name: Verify Container Startup & Health
         run: |
